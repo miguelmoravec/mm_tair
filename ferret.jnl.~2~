@@ -1,0 +1,9 @@
+ ! NOAA/PMEL TMAP
+ ! FERRET v6.97 (PyFerret 1.3 beta/opt)
+ ! Linux 2.6.32-573.22.1.el6.x86_64 - 05/16/16
+ ! 13-Jul-16 16:10     
+
+show data
+use ecda_v31_atmos_auto.des
+show data
+exit

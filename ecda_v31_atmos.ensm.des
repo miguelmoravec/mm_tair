@@ -1,0 +1,205 @@
+&FORMAT_RECORD
+   D_TYPE             = '  MC'
+   D_FORMAT           = '  1A'
+/
+
+&BACKGROUND_RECORD
+   D_TITLE            = 'CM2.1R_ECDA_v3.1_1960_pfl'
+   D_T0TIME           = '01-JAN-1891 00:00:00'
+   D_TIME_UNIT        = 86400
+   D_TIME_MODULO      = .FALSE.
+   D_CALTYPE          = 'JULIAN'
+/
+
+&MESSAGE_RECORD
+   D_MESSAGE          = ' '
+   D_ALERT_ON_OPEN    = .FALSE.
+   D_ALERT_ON_OUTPUT  = .FALSE.
+/
+
+&EXTRA_RECORD
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150101.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45306.5
+   S_END              = 45306.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150201.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45336
+   S_END              = 45336
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150301.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45365.5
+   S_END              = 45365.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150401.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45396
+   S_END              = 45396
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150501.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45426.5
+   S_END              = 45426.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150601.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45457
+   S_END              = 45457
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150701.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45487.5
+   S_END              = 45487.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150801.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45518.5
+   S_END              = 45518.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20150901.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45549
+   S_END              = 45549
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20151001.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45579.5
+   S_END              = 45579.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20151101.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45610
+   S_END              = 45610
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20151201.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45640.5
+   S_END              = 45640.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160101.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45671.5
+   S_END              = 45671.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160201.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45701.5
+   S_END              = 45701.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160301.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45731.5
+   S_END              = 45731.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160401.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45762
+   S_END              = 45762
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160501.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45792.5
+   S_END              = 45792.5
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/20160601.atmos_month.ensm.nc'
+   S_AUX_SET_NUM      = 0
+   S_START            = 45823
+   S_END              = 45823
+   S_DELTA            = 1
+   S_NUM_OF_FILES     = 1
+   S_REGVARFLAG       = ' '
+/
+
+&STEPFILE_RECORD
+   S_FILENAME         = '**END OF STEPFILES**'
+/

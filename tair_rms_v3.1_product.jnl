@@ -1,0 +1,49 @@
+\can mode verify
+
+\can data/a
+
+def sym print_opt $1"0"
+
+set mem/size=240
+use ecda_v31_atmos.ensm.des ###### need to make this maybe
+
+
+sp dmget /archive/x1y/fms/oda_data/sst/haddaily/mnm/sstcm21_hadmonthly.nc
+use taircm21_ncepmonthly_1516.nc  #### we need to make this
+
+let temp2 =  temp[d=2,gxy=temp[d=1],gt=temp[d=1]@asn]
+let err1 = temp[d=1,k=24] - temp2[k=24]
+
+let var1 = err1^2; let rms10 = var1[x=@ave,y=60s:60n@ave]^0.5
+
+set win 1
+set viewport upper
+plot/vl=0.0:1.5:0.1/line=1 rms10
+
+let var1 = err1^2; 
+let rms1 = var1[k=24,x=@ave,y=60s:60n@ave]^0.5
+list rms10
+plot/ov/line=1/DASH rms1
+
+set viewport lower
+
+let var1 = err1^2; let rms1 = var1[x=@ave,y=60s:60n@ave]^0.5
+
+list rms1
+
+
+
+set win 2
+cancel mode nodata_lab
+set viewport upper
+cancel mode nodata_lab
+plot/vl=0:2.0:0.1/line=1/DASH rms1
+set viewport lower
+set region/y=80s:80n
+sha/lev=(0.,5.0,0.5) var1[l=1:18@ave]^0.5
+go land
+
+FRAME/FILE=tair_amo.gif
+
+set mode/last verify
+
