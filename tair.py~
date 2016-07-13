@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+#Written by Miguel M. Moravec thanks to the teachings of Garrett Wright. For questions please email miguel.moravec@vanderbilt.edu
+#This script automatically generates global plots of air temperature for the current and last calendar year
+#This script relies on a standard naming convention of daily SST NetCDF files in this directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
+#This script also relies on monthly atmos SST NetCDFs from this directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
+
 import subprocess as p
 import datetime
 import os
@@ -36,7 +41,7 @@ def mymain():
 
 	print 'Generating plots with available data from ', year_prev, '/', year, '...'
 
-	#makes des file using XLY's make_des program to create file with locations of all relevant atmos netCDF's
+	#makes des file using XLY's make_des program to create file with locations of all relevant c3 atmos netCDF's
 	
 	d ="." #the local directory
 
@@ -70,38 +75,20 @@ def mymain():
 	if os.path.isfile(atmos_outfile_combo):
 		os.remove(atmos_outfile_combo)
 
-	if month == "01":
 
-		#Janurary is a special case that can only consider atmos data from the previous year, and so the file naming convention for the desired data file is unique
-		#Looks for files in Seth's directory, /net2/sdu/..., to avoid dmgetting the archive if possible
+	#Looks for files in Seth's directory, /net2/sdu/..., to avoid dmgetting the NMME archive if possible
 
-        	file_loc = '/archive/nmme/NMME/INPUTS/ncep2_am2/NCEP2_AM2.' + year + '.nc'
-		file_loc_alt = '/net2/sdu/NMME/NCEP2_AM2/NetCDF/NCEP2_AM2.' + year + '.nc'
+        file_loc = '/archive/nmme/NMME/INPUTS/ncep2_am2/NCEP2_AM2.' + year + '.nc'
+	file_loc_alt = '/net2/sdu/NMME/NCEP2_AM2/NetCDF/NCEP2_AM2.' + year + '.nc'
 
-		if os.path.isfile(file_loc_alt):
-			cmd1 = 'use ' + file_loc_alt
-		else:	
-			print 'dmgetting archived data files (this may take a while)'
-			child = p.Popen(["dmget", file_loc],cwd=d)
-        		child.communicate()
-			cmd1 = 'use ' + file_loc
-			
-	
-	else:
+	if os.path.isfile(file_loc_alt):
+		cmd1 = 'use ' + file_loc_alt
+	else:	
+		print 'dmgetting archived data files (this may take a while)'
+		child = p.Popen(["dmget", file_loc],cwd=d)
+        	child.communicate()
+		cmd1 = 'use ' + file_loc
 
-		#All other months obey this file naming convention for their data files
-		#Looks for files in Seth's directory, /net2/sdu/..., to avoid dmgetting the archive if possible
-
-        	file_loc = '/archive/nmme/NMME/INPUTS/ncep2_am2/NCEP2_AM2.' + year + '.nc'
-		file_loc_alt = '/net2/sdu/NMME/NCEP2_AM2/NetCDF/NCEP2_AM2.' + year + '.nc'
-
-		if os.path.isfile(file_loc_alt):
-			cmd1 = 'use ' + file_loc_alt
-		else:
-			print 'dmgetting archived data files (this may take a while)'	        	
-			child = p.Popen(["dmget", file_loc],cwd=d)
-	        	child.communicate()
-			cmd1 = 'use ' + file_loc
 
 	#The following sets the necessary parameters in pyferret	
 
@@ -141,7 +128,7 @@ def mymain():
 	
 	cmd7 = "use " + atmos_outfile_combo
 	cmd8 = "let temp2 = temp[d=2,gxy=temp[d=1],gt=temp[d=1]@asn]"
-	cmd9 = "let err1 = temp[d=1,k=24] - temp2[k=24]" ###possibily timline here
+	cmd9 = "let err1 = temp[d=1,k=24] - temp2[k=24]"
 
 	cmd11 = 'sha/lev=(0.,5.0,0.5) var1[l=1:' + timeline + '@ave]^0.5'
 	cmd12 = 'go land'
@@ -188,9 +175,15 @@ def body():
 	com11 = 'list rms10' 
 	com12 = 'plot/ov/line=1/DASH rms1'
 	com13 = 'set viewport lower'
-	com14 = 'set region/y=80s:80n'
-	com15 = 'set viewport lower'
-	com16 = 'set region/y=30s:30n'
+	com14 = 'let var1 = err1^2; let rms1 = var1[x=@ave,y=60s:60n@ave]^0.5'
+	com15 = 'list rms1'
+	com16 = 'set win 2'
+	com17 = 'cancel mode nodata_lab'
+	com18 = 'set viewport upper'
+	com19 = 'cancel mode nodata_lab'
+	com20 = 'plot/vl=0:2.0:0.1/line=1/DASH rms1'
+	com21 = 'set viewport lower'
+	com22 = 'set region/y=80s:80n'
 
 	(errval, errmsg) = pyferret.run(com5)
 	(errval, errmsg) = pyferret.run(com6)
@@ -204,6 +197,12 @@ def body():
 	(errval, errmsg) = pyferret.run(com14)
 	(errval, errmsg) = pyferret.run(com15)
 	(errval, errmsg) = pyferret.run(com16)
+	(errval, errmsg) = pyferret.run(com17)
+	(errval, errmsg) = pyferret.run(com18)
+	(errval, errmsg) = pyferret.run(com19)
+	(errval, errmsg) = pyferret.run(com20)
+	(errval, errmsg) = pyferret.run(com21)
+	(errval, errmsg) = pyferret.run(com22)
 
 if __name__=="__main__":
     mymain()
