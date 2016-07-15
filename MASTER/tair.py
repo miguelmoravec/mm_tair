@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #Written by Miguel M. Moravec thanks to the teachings of Garrett Wright. For questions please email miguel.moravec@vanderbilt.edu
-#This script automatically generates global plots of air temperature for the current and last calendar year
+#This script automatically generates global plots of air temperature RMSE for the current and last calendar year
 #This script relies on a standard naming convention of daily SST NetCDF files in this directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
 #This script also relies on monthly atmos SST NetCDFs from this directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
 
@@ -10,6 +10,7 @@ import datetime
 import os
 import os.path
 import glob
+import sys, getopt
 
 try:
     import pyferret
@@ -17,12 +18,57 @@ except ImportError:
     print "You must module load pyferret"
     exit(1)   
 
-def mymain():
+def mymain(argv):
+
+	now = datetime.datetime.now()
+	today = ''
+	
+	#the following establishes the three options for the script
+
+	try:
+		opts, args = getopt.getopt(argv,"thd:",["input="])
+
+	except getopt.GetoptError:
+   		print "ERROR Invalid Syntax. See 'tair.py -h'"
+		sys.exit(2)
+
+	for opt, arg in opts:
+ 		if opt == '-h': #help option
+        		print '\nThis script automatically generates global plots of air temperature RMSE for the current and last calendar year \n'
+			print 'Options are as follows:'
+			print "'-h' launches this help text"
+			print "'-t' generates today's most recent plots"
+			print "'-d mmyyy' generates 2yr plots up to a specified date i.e. '-d 072016' \n"
+			print 'This script relies on a standard naming convention of daily SST NetCDF files in this directory:'
+			print '/archive/nmme/NMME/INPUTS/ncep2_am2/ \n'
+			print 'This script also relies on monthly atmos SST NetCDFs from this directory: '
+			print '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/ \n'
+			print 'Written by Miguel M. Moravec. For questions please email miguel.moravec@vanderbilt.edu \n'
+        		sys.exit()
+
+		elif opt == '-t':
+			#option automatically generates most recent plots
+			today = now.strftime('%m%Y')
+
+		elif opt in ('-d', '--input'):
+         		#option generates plots up to specific date mmyyyy
+			today = arg			
+	
+	#reminds user to select an option
+	if today == '':
+		print 'ERROR must select an option'
+		print "'-t' generates plots for 2 calendar years preceding today's date"
+		print "'-d mmyyy' generates plots for 2 calendar years preceding a particular date i.e. '-d 072016'"
+		exit(1)
+
+	try:
+		date = datetime.datetime.strptime('25' + today, '%d%m%Y')
+
+	except ValueError:
+		print "ERROR Invalid Syntax. Arguments following '-d' should be formatted: mmyyyy"
+		exit(1)
 
 	#sets time variables, used in generation of NetCDFs, plots, and file names	
-
-	print 'Please answer the following question to plot global air temperature for the current and last calendar year...'
-	today = raw_input("Enter desired end date (mmyyyy): ")
 
 	date = datetime.datetime.strptime('25' + today, '%d%m%Y')
 	month = date.strftime('%m')
@@ -33,7 +79,6 @@ def mymain():
 	year_prev = str(int(year)-1)
 	year_prev_abrev = year_prev[-2:]
 	timeline = str(int(month)+11)
-
 
 	atmos_outfile = "taircm21_ncepmonthly_" + year + ".nc"
 	atmos_outfile_prev = "taircm21_ncepmonthly_" + year_prev + ".nc"
@@ -53,21 +98,22 @@ def mymain():
 	flist = glob.glob(finput)
 	[cmd.append(item) for item in flist]
 	chd = p.Popen(cmd, stdout=p.PIPE, stderr=p.PIPE)
-	# then when you "communicate", you will be returned three things, an return code (which we talked about before), and the contents of the pipes:
 	myout, myerr = chd.communicate()
 	print myerr
-	#great, now the contents that you'd like to be written to a file is in the variable myout as a string
-	#we will open, attempt the write and this syntax will close the file if all goes well.
 	with open(outputfile,'w') as F:
 	    F.write(myout)
+	if os.path.isfile(str(outputfile))==False:
+		print "ERROR. Make_des process fail. Please ensure data files are located in their proper directories. See '-h'. \nExiting . . ."
+		exit(1)
 
 
 	#lines 44-99 replace Xiaosong's csh script and make one NetCDF file in the local dir with two calendar years worth of daily SST data averaged monthly
 
 	
 
-	pyferret.start(quiet=True)
-	os.remove("ferret.jnl")
+	if ( not pyferret.start(quiet=True, journal=False, unmapped=True) ):
+		print "ERROR. Pyferret start failed. Exiting . . ."
+		exit(1)
 
 	if os.path.isfile("tmp1.nc"):
 		os.remove("tmp1.nc")
@@ -144,8 +190,11 @@ def mymain():
 	(errval, errmsg) = pyferret.run(cmd12)
 	(errval, errmsg) = pyferret.run(cmd13)
 
-	print 'Plot image file for SST RMSE ', year_prev, '/', year, ' since ', month_abrev,' is located in the local directory (if data was available) and is named: ', filename
-	print 'If no plots generated, please see script comments to find necessary input files.'
+	if os.path.exists(str(filename)):
+		print 'SUCCESS! Plot image file for Global Air Temp RMSE ', year_prev, '/', year, ' since ', month_abrev,' is located in the local directory and is named: ', filename
+	else:	
+		print "ERROR. No plots generated. Please ensure data files are located in their proper directories. See '-h'"
+		exit(1)
 
 
 def header():
@@ -205,7 +254,7 @@ def body():
 	(errval, errmsg) = pyferret.run(com22)
 
 if __name__=="__main__":
-    mymain()
+    mymain(sys.argv[1:])
 
 
 
