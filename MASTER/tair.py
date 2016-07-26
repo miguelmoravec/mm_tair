@@ -2,8 +2,10 @@
 
 #Written by Miguel M. Moravec thanks to the teachings of Garrett Wright. For questions please email miguel.moravec@vanderbilt.edu
 #This script automatically generates global plots of air temperature RMSE for the current and last calendar year
-#This script relies on a standard naming convention of daily SST NetCDF files in this directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
-#This script also relies on monthly atmos SST NetCDFs from this directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
+#This script relies on a standard naming convention of daily air temp NetCDF files in this directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
+#This script also relies on monthly air temp NetCDFs from this directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
+
+#   ******AXIS NOTE*********** The plots generated in this script will have an x-axis (months) that is as long as the TOTAL number of '*.atmos_month.ensm.nc' files available in the /ncep2_am2/ directory. This means that the plot axis will generate properly the first month it is run, but will include 'phantom' future months if it is rerun months later. Suggest limiting the inputs/ncep2_am/ directory to the desired two years worth of data
 
 import subprocess as p
 import datetime
@@ -86,11 +88,17 @@ def mymain(argv):
 
 	print 'Generating plots with available data from ', year_prev, '/', year, '...'
 
+	#checks to see if necessary nc files are available
+
+	if not os.path.isfile('/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/' + year + month + '01.atmos_month.ensm.nc'):
+		print 'ERROR: NetCDF data not available yet for ' + month + '/' + year + '. Exiting . . . '
+		exit(1)
+
 	#makes des file using XLY's make_des program to create file with locations of all relevant c3 atmos netCDF's
 	
 	d ="." #the local directory
 
-	finput = "/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/*.atmos_month.ensm.nc"
+	finput = "/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/*01.atmos_month.ensm.nc"
 	child = p.Popen(["dmget", finput],cwd=d)
 	myout, myerr = child.communicate()
 	cmd = ["/home/atw/util/make_des"]
@@ -102,14 +110,16 @@ def mymain(argv):
 	print myerr
 	with open(outputfile,'w') as F:
 	    F.write(myout)
+
+	#checks make_des
 	if os.path.isfile(str(outputfile))==False:
 		print "ERROR. Make_des process fail. Please ensure data files are located in their proper directories. See '-h'. \nExiting . . ."
 		exit(1)
-
+	if not '&FORMAT_RECORD' in open(outputfile).read():
+    		print "ERROR. Make_des process fail. Please ensure data files are located in their proper directories. See '-h'. \nExiting . . ."
+		exit(1)
 
 	#lines 44-99 replace Xiaosong's csh script and make one NetCDF file in the local dir with two calendar years worth of daily SST data averaged monthly
-
-	
 
 	if ( not pyferret.start(quiet=True, journal=False, unmapped=True) ):
 		print "ERROR. Pyferret start failed. Exiting . . ."
@@ -175,9 +185,10 @@ def mymain(argv):
 	cmd7 = "use " + atmos_outfile_combo
 	cmd8 = "let temp2 = temp[d=2,gxy=temp[d=1],gt=temp[d=1]@asn]"
 	cmd9 = "let err1 = temp[d=1,k=24] - temp2[k=24]"
-
+	
 	cmd11 = 'sha/lev=(0.,5.0,0.5) var1[l=1:' + timeline + '@ave]^0.5'
 	cmd12 = 'go land'
+	cmd125 = str('ANNOTATE/NOUSER/XPOS=2/YPOS=6.25 "Air Temp RMSE ' + year_prev + '-' + year + '"')
 	cmd13 = 'FRAME/FILE=' + filename
 
 	(errval, errmsg) = pyferret.run(cmd7)
@@ -188,10 +199,12 @@ def mymain(argv):
 
 	(errval, errmsg) = pyferret.run(cmd11)
 	(errval, errmsg) = pyferret.run(cmd12)
+	(errval, errmsg) = pyferret.run(cmd125)
 	(errval, errmsg) = pyferret.run(cmd13)
 
 	if os.path.exists(str(filename)):
 		print 'SUCCESS! Plot image file for Global Air Temp RMSE ', year_prev, '/', year, ' since ', month_abrev,' is located in the local directory and is named: ', filename
+		exit(0)
 	else:	
 		print "ERROR. No plots generated. Please ensure data files are located in their proper directories. See '-h'"
 		exit(1)
