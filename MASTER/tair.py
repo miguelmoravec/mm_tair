@@ -186,7 +186,7 @@ def mymain(argv):
 	cmd8 = "let temp2 = temp[d=2,gxy=temp[d=1],gt=temp[d=1]@asn]"
 	cmd9 = "let err1 = temp[d=1,k=24] - temp2[k=24]"
 	
-	cmd11 = 'sha/lev=(0.,5.0,0.5) var1[l=1:' + timeline + '@ave]^0.5'
+	cmd11 = 'sha/lev=(0.,5.0,0.5)(inf) var1[l=1:' + timeline + '@ave]^0.5'
 	cmd12 = 'go land'
 	cmd125 = str('ANNOTATE/NOUSER/XPOS=2/YPOS=6.25 "Air Temp RMSE ' + year_prev + '-' + year + '"')
 	cmd13 = 'FRAME/FILE=' + filename
