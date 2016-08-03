@@ -2,10 +2,8 @@
 
 #Written by Miguel M. Moravec thanks to the teachings of Garrett Wright. For questions please email miguel.moravec@vanderbilt.edu
 #This script automatically generates global plots of air temperature RMSE for the current and last calendar year
-#This script relies on a standard naming convention of daily air temp NetCDF files in this directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
-#This script also relies on monthly air temp NetCDFs from this directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
-
-#   ******AXIS NOTE*********** The plots generated in this script will have an x-axis (months) that is as long as the TOTAL number of '*.atmos_month.ensm.nc' files available in the /ncep2_am2/ directory. This means that the plot axis will generate properly the first month it is run, but will include 'phantom' future months if it is rerun months later. Suggest limiting the inputs/ncep2_am/ directory to the desired two years worth of data
+#This script relies on a standard naming convention of daily air temp NetCDF files in this observations directory: /archive/nmme/NMME/INPUTS/ncep2_am2/
+#This script also relies on monthly mean air temp NetCDFs from this model directory: /archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/
 
 import subprocess as p
 import datetime
@@ -13,12 +11,13 @@ import os
 import os.path
 import glob
 import sys, getopt
+from dateutil import relativedelta
 
 try:
-    import pyferret
+	import pyferret
 except ImportError:
-    print "You must module load pyferret"
-    exit(1)   
+	print "You must module load pyferret"
+	exit(1)   
 
 def mymain(argv):
 
@@ -41,9 +40,9 @@ def mymain(argv):
 			print "'-h' launches this help text"
 			print "'-t' generates today's most recent plots"
 			print "'-d mmyyy' generates 2yr plots up to a specified date i.e. '-d 072016' \n"
-			print 'This script relies on a standard naming convention of daily SST NetCDF files in this directory:'
+			print 'This script relies on a standard naming convention of daily SST NetCDF files in this directory observations:'
 			print '/archive/nmme/NMME/INPUTS/ncep2_am2/ \n'
-			print 'This script also relies on monthly atmos SST NetCDFs from this directory: '
+			print 'This script also relies on monthly mean air temp NetCDFs from this model directory: '
 			print '/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/ \n'
 			print 'Written by Miguel M. Moravec. For questions please email miguel.moravec@vanderbilt.edu \n'
         		sys.exit()
@@ -94,24 +93,60 @@ def mymain(argv):
 		print 'ERROR: NetCDF data not available yet for ' + month + '/' + year + '. Exiting . . . '
 		exit(1)
 
-	#makes des file using XLY's make_des program to create file with locations of all relevant c3 atmos netCDF's
-	
+	#sets parameters for loop function
+
 	d ="." #the local directory
 
-	finput = "/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/*01.atmos_month.ensm.nc"
+	filename = str('/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/' + year + month + '01.atmos_month.ensm.nc' )
+
+	count = 11 + int(month)
+
+	dlist = [filename] #will be list of netCDF files after loop is finished
+
+	datel = date #date for the loop
+
+	check = 0 #error return
+
+	while count > 0:
+
+		#generates list of relevant netCDF files one month at a time to be made into a DES file 
+
+		count = count - 1
+
+		datel = datel + relativedelta.relativedelta(months=-1)
+		monthl = datel.strftime('%m')
+		yearl = datel.strftime('%Y')
+
+		filename = str('/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/' + yearl + monthl + '01.atmos_month.ensm.nc' ) 	
+
+		if os.path.isfile(filename):
+			dlist.append(filename) #adds filename for particular date to list
+
+		else:
+			print 'ERROR. No data for ' + monthl + '/' + yearl + '!'
+			if yearl == year_prev:
+				timeline = str(int(month) - 1)
+				check = 1 #reports that no data available for prev year, affecting calculations later
+
+	#the following makes a des file using XLY's make_des program and dmget
+
+	finput = "/archive/x1y/FMS/c3/CM2.1_ECDA/CM2.1R_ECDA_v3.1_1960_pfl_auto/gfdl.ncrc3-intel-prod-openmp/history/tmp/*.atmos_month.ensm.nc"
 	child = p.Popen(["dmget", finput],cwd=d)
 	myout, myerr = child.communicate()
+
 	cmd = ["/home/atw/util/make_des"]
 	outputfile='ecda_v31_atmos_auto.des'
-	flist = glob.glob(finput)
-	[cmd.append(item) for item in flist]
+	[cmd.append(item) for item in dlist]
+
 	chd = p.Popen(cmd, stdout=p.PIPE, stderr=p.PIPE)
 	myout, myerr = chd.communicate()
 	print myerr
+
 	with open(outputfile,'w') as F:
 	    F.write(myout)
 
 	#checks make_des
+
 	if os.path.isfile(str(outputfile))==False:
 		print "ERROR. Make_des process fail. Please ensure data files are located in their proper directories. See '-h'. \nExiting . . ."
 		exit(1)
@@ -119,7 +154,7 @@ def mymain(argv):
     		print "ERROR. Make_des process fail. Please ensure data files are located in their proper directories. See '-h'. \nExiting . . ."
 		exit(1)
 
-	#lines 44-99 replace Xiaosong's csh script and make one NetCDF file in the local dir with two calendar years worth of daily SST data averaged monthly
+	#next ~70 lines replace Xiaosong's csh script and make one NetCDF file in the local dir with two calendar years worth of daily SST data averaged monthly
 
 	if ( not pyferret.start(quiet=True, journal=False, unmapped=True) ):
 		print "ERROR. Pyferret start failed. Exiting . . ."
@@ -131,8 +166,7 @@ def mymain(argv):
 	if os.path.isfile(atmos_outfile_combo):
 		os.remove(atmos_outfile_combo)
 
-
-	#Looks for files in Seth's directory, /net2/sdu/..., to avoid dmgetting the NMME archive if possible
+	#Looks for files in Seth's directory, /net2/sdu/..., to avoid dmgetting the NMME archive of model data if possible
 
         file_loc = '/archive/nmme/NMME/INPUTS/ncep2_am2/NCEP2_AM2.' + year + '.nc'
 	file_loc_alt = '/net2/sdu/NMME/NCEP2_AM2/NetCDF/NCEP2_AM2.' + year + '.nc'
@@ -169,27 +203,43 @@ def mymain(argv):
 	child.communicate() 
 	child = p.Popen(["ncrcat","-O","-v","temp", "tmp1.nc", atmos_outfile],cwd=d)
 	child.communicate()
-   	child = p.Popen(["ncrcat", "/home/x1y/gfdl/ecda_operational/sst/" + atmos_outfile_prev, atmos_outfile, atmos_outfile_combo],cwd=d)
-	child.communicate()
+
+	if check == 0:
+
+		if not os.path.isfile("/home/x1y/gfdl/ecda_operational/sst/" + atmos_outfile_prev): 
+			#if last year's daily SST data not averaged monthly, runs this script for last year creating needed file, then deletes the irrelevant image generated 
+			child = p.Popen(["python","SSTrmse.py", "-d", '12' + year_prev ],cwd=d)
+			child.communicate()
+			print '***DISREGARD PRECEDING ERRORS***'
+			child = p.Popen(["ncrcat", atmos_outfile_prev, atmos_outfile, atmos_outfile_combo],cwd=d)
+			child.communicate()
+			os.remove('tair_amo_' + year_prev + '_12.png')
+			
+		else:		
+   			child = p.Popen(["ncrcat", "/home/x1y/gfdl/ecda_operational/sst/" + atmos_outfile_prev, atmos_outfile, atmos_outfile_combo],cwd=d)
+			child.communicate()		
+
+
+		cmd7 = "use " + atmos_outfile_combo
+
+	else:
+		print "WARNING: Only considering one year's worth of data..."
+		cmd7 = "use " + atmos_outfile 
 
 	returnCode = child.returncode
 
-	os.remove("tmp1.nc")
+	#the following automates the pyferret plot generation and saves a png image file of the plot in the local dir
 
-	#the following automates the pyferret plot generation and saves a png image file in the local dir
-
-	filename = 'tair_amo_' + month + '_' + year + '.png'
+	filename = 'tair_amo_' + year + '_' + month + '.png'
 
 	header()
 	
-	cmd7 = "use " + atmos_outfile_combo
 	cmd8 = "let temp2 = temp[d=2,gxy=temp[d=1],gt=temp[d=1]@asn]"
 	cmd9 = "let err1 = temp[d=1,k=24] - temp2[k=24]"
-	
 	cmd11 = 'sha/lev=(0.,5.0,0.5)(inf) var1[l=1:' + timeline + '@ave]^0.5'
 	cmd12 = 'go land'
 	cmd125 = str('ANNOTATE/NOUSER/XPOS=2/YPOS=6.25 "Air Temp RMSE ' + year_prev + '-' + year + '"')
-	cmd13 = 'FRAME/FILE=' + filename
+	cmd13 = 'FRAME/FILE=' + filename  #saves png
 
 	(errval, errmsg) = pyferret.run(cmd7)
 	(errval, errmsg) = pyferret.run(cmd8)
@@ -202,10 +252,18 @@ def mymain(argv):
 	(errval, errmsg) = pyferret.run(cmd125)
 	(errval, errmsg) = pyferret.run(cmd13)
 
+	#file clean up
+	if os.path.exists("tmp1.nc"):
+		os.remove("tmp1.nc")
+
+	#image file/script check
 	if os.path.exists(str(filename)):
-		print 'SUCCESS! Plot image file for Global Air Temp RMSE ', year_prev, '/', year, ' since ', month_abrev,' is located in the local directory and is named: ', filename
-		exit(0)
-	else:	
+		if check == 0:
+			print 'SUCCESS. Plot image file for Global Air Temp SST RMSE ' + year_prev + '/' + year + ' since ' + month_abrev + ' is located in the local directory and is named: ' + filename
+
+		if check == 1:
+			print 'ERROR. PARTIAL SUCCESS. Plot image file for Global Air Temp RMSE (' + year + ' ONLY!!!) is located in the local directory and is named: ' + filename
+	else:
 		print "ERROR. No plots generated. Please ensure data files are located in their proper directories. See '-h'"
 		exit(1)
 
@@ -216,7 +274,7 @@ def header():
 
 	com1 = 'cancel data/all'
 	com2 = 'def sym print_opt $1"0"'
-	com3 = 'set mem/size=240'
+	com3 = 'set mem/size=400'
 	com4 = 'use ecda_v31_atmos_auto.des'
 
 	(errval, errmsg) = pyferret.run(com1)
